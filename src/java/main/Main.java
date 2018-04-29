@@ -34,7 +34,7 @@ public class Main {
                  break;
                  
                 default:
-                    System.out.println("Incorrect option");
+                    System.out.println("\nIncorrect option");
                 break;
             }
             
@@ -142,9 +142,9 @@ public class Main {
     }
     
     private static void addNote(){
-        System.out.println("--- Create a note ---");
+        System.out.println("\n--- Create a note ---");
         id = (Integer.parseInt(noteClient.countREST()) + 1) + "";
-        System.out.print("Enter content of the note: ");
+        System.out.print("\nEnter content of the note: ");
         String content = new Scanner(System.in).nextLine();
         JsonObject newNote = Json.createObjectBuilder().add("id", id).add("email", email).add("content", content).build();
         noteClient.addNote(newNote, id, email, content);
@@ -158,7 +158,7 @@ public class Main {
     
     
     private static void searchNote(){
-        System.out.println("--- Seach a note ---");
+        System.out.println("\n--- Seach a note ---");
         nNotes = noteClient.countNotes(email);
         if (nNotes.equals("0")) {
             System.out.println("\nYou don´t have any notes");
@@ -176,7 +176,7 @@ public class Main {
     }
     
     private static void modifyNote(){
-        System.out.println("--- Modify a note ---");
+        System.out.println("\n--- Modify a note ---");
         nNotes = noteClient.countNotes(email);
         if (nNotes.equals("0")) {
             System.out.println("\nYou don´t have any notes to modify");
@@ -185,12 +185,12 @@ public class Main {
             id = new Scanner(System.in).nextLine();
             check = noteClient.checkNoteOwner(id, email);
             if (check.equals("Ok")) {
-                System.out.print("Enter a content:");
+                System.out.print("\nEnter a content:");
                 String modified = noteClient.modifyNote(id, new Scanner(System.in).nextLine());
                 if (modified.equals("Ok")) {
-                    System.out.println("The note has been modified");
+                    System.out.println("\nThe note has been modified");
                 } else {
-                    System.out.println("The note hasn´t been modified");
+                    System.out.println("\nThe note hasn´t been modified");
                 }   
             } else {
                 System.out.println("\nEnter a valid ID");
@@ -199,7 +199,7 @@ public class Main {
     }
     
     private static void deleteNote(){
-        System.out.println("--- Delete a note ---");
+        System.out.println("\n--- Delete a note ---");
         nNotes = noteClient.countNotes(email);
         if (nNotes.equals("0")) {
             System.out.println("\nYou don´t have any notes to delete");
@@ -222,25 +222,25 @@ public class Main {
     
     
     private static void modifyPassword(){
-        System.out.println("--- Modify password ---"); 
-        System.out.print("Enter a new password: ");
+        System.out.println("\n--- Modify password ---"); 
+        System.out.print("\nEnter a new password: ");
         check = userClient.modifyPassword(email, new Scanner(System.in).nextLine());
         if (check.equals("Ok")) {
-            System.out.println("Password has been modified");
+            System.out.println("\nPassword has been modified");
         } else {
-            System.out.println("Password hasn´t been modified");
+            System.out.println("\nPassword hasn´t been modified");
         }        
     }
     
     private static boolean deleteAccount(){
-        System.out.println("--- Delete account ---"); 
+        System.out.println("\n--- Delete account ---"); 
         noteClient.deleteAllNotesFromUser(Response.class, email);
         Response r1 = userClient.deleteAccount(Response.class, email);
         if (r1.getStatus() == 204) {
-            System.out.println("Your account has been deleted");
+            System.out.println("\nYour account has been deleted");
             return false;
         } else {
-            System.out.println("Your account hasn´t been deleted");
+            System.out.println("\nYour account hasn´t been deleted");
         }    
         return true;
     }
