@@ -24,26 +24,13 @@ public class Main {
         System.out.println("2 - Create account");
         
         while (running) {
-            
             switch (new Scanner(System.in).nextInt()) {
                 case 1:
                     login();
                 break;
                 
                 case 2:
-                    System.out.println("--- Sign up ---");
-                    getEmailClave();
-                    JsonObject newUser = Json.createObjectBuilder().add("email", email).add("password", clave).build();
-                    Response r2 = userClient.find_JSON(Response.class, email);
-                   
-                    if(r2.getStatus() == 204){
-                        userClient.registerUser(newUser, email, clave);
-                        System.out.println("Account has been created");
-                        login();
-                    } else {
-                        System.out.println("Account has not been created");
-                    }                 
-                    
+                    createAccount();
                  break;
                  
                 default:
@@ -55,8 +42,16 @@ public class Main {
     }
     
     
+    private static void getEmailClave() throws IOException {
+        System.out.print("Enter email: ");
+        email = new Scanner(System.in).nextLine();
+        System.out.print("Enter password: ");
+        clave = new Scanner(System.in).nextLine(); 
+    }
+        
+    
     private static void login() throws IOException{
-        System.out.println("--- Sign in ---");
+        System.out.println("\n--- Sign in ---");
         getEmailClave();
         
         Response r1 = userClient.login(Response.class, email, clave);
@@ -68,19 +63,29 @@ public class Main {
         } else {
             running = true;
             System.out.println("\nIncorrect data\n");
+            login();
         }          
     }
     
-    private static void getEmailClave() throws IOException {
-        System.out.print("Enter email: ");
-        email = new Scanner(System.in).nextLine();
-        System.out.print("Enter password: ");
-        clave = new Scanner(System.in).nextLine(); 
+    private static void createAccount() throws IOException {
+        System.out.println("\n--- Sign up ---");
+        getEmailClave();
+        JsonObject newUser = Json.createObjectBuilder().add("email", email).add("password", clave).build();
+        Response r2 = userClient.find_JSON(Response.class, email);
+                   
+        if(r2.getStatus() == 204){
+            userClient.registerUser(newUser, email, clave);
+            System.out.println("\nAccount has been created");
+            login();
+        } else {
+                System.out.println("\nAccount has not been created");
+                createAccount();
+        }         
     }
     
+    
+
     private static void getNotesMenu() {
-        
-        boolean running = true;
         
         while(running) {
             System.out.println("\n--------------------");
@@ -91,8 +96,7 @@ public class Main {
             System.out.println("5 - Delete a note");
             System.out.println("6 - Modify password");
             System.out.println("7 - Logout");
-            System.out.println("8 - Delete account");
-            System.out.println("--------------------");       
+            System.out.println("8 - Delete account");     
             
             switch (new Scanner(System.in).nextInt()) {
                 case 1 : 
@@ -117,7 +121,7 @@ public class Main {
                     running = false;
                     break;
                 case 8:
-                    deleteAccount();
+                    running = deleteAccount();
                     break;
                 default:
                     System.out.println("\nIncorrect option");
@@ -126,8 +130,6 @@ public class Main {
         }
     }
     
-    
-
     private static void myNotes(){
         String notes = noteClient.viewNotes(email);
         nNotes = noteClient.countNotes(email);  
@@ -141,12 +143,12 @@ public class Main {
     
     private static void addNote(){
         System.out.println("--- Create a note ---");
-        String newId = generarId();
-        System.out.println("Introduzca el contenido de la nota");
+        id = (Integer.parseInt(noteClient.countREST()) + 1) + "";
+        System.out.print("Enter content of the note: ");
         String content = new Scanner(System.in).nextLine();
-        JsonObject newNote = Json.createObjectBuilder().add("id", newId).add("email", email).add("content", content).build();
-        noteClient.addNote(newNote, newId, email, content);
-        Response r3 = noteClient.find_JSON(Response.class, newId);
+        JsonObject newNote = Json.createObjectBuilder().add("id", id).add("email", email).add("content", content).build();
+        noteClient.addNote(newNote, id, email, content);
+        Response r3 = noteClient.find_JSON(Response.class, id);
         if(r3.getStatus() == 200){
             System.out.println("\nNote has been created.");
         } else {
@@ -230,29 +232,16 @@ public class Main {
         }        
     }
     
-    private static void deleteAccount(){
-        System.out.println("--- Delete account ---");     
+    private static boolean deleteAccount(){
+        System.out.println("--- Delete account ---"); 
+        noteClient.deleteAllNotesFromUser(Response.class, email);
         Response r1 = userClient.deleteAccount(Response.class, email);
         if (r1.getStatus() == 204) {
-            running = false;
             System.out.println("Your account has been deleted");
+            return false;
         } else {
             System.out.println("Your account hasn´t been deleted");
-        }             
+        }    
+        return true;
     }
-    
-    
-    private static String generarId(){
-        int num1 = 1;
-        int num2 = 1000;
-        String newId = (int)Math.floor(Math.random()*(num1-(num2+1))+(num2)) + "";
-        Response r4 = noteClient.existsNote(Response.class, newId);
-
-        while (r4.getStatus() == 200) {
-            r4 = noteClient.existsNote(Response.class, newId);
-            newId = (int)Math.floor(Math.random()*(num1-(num2+1))+(num2)) + "";
-        }
-        return newId;
-    }
-    
 }
